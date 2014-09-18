@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>dataBinder</title>
+</head>
+<body>
+	<div id="demo">
+		<p>{{name}}</p>
+		{{age}}
+		<br><br>
+		<input value="" placeholder="search" data-bind="name">
+	</div>
+</body>
+<script type="text/javascript">
+
+var model = {
+	type : 'form',
+	name : "penglei",
+	age  : 23
+}
+
+var REPL_RE = /\{\{(.)+\}\}/g;
+
+var handles = {};
+
+var g = function(ele){
+	return document.querySelector(ele);
+}
+var root = g('#demo');
+var model2sync = {};			//save nodes
+for(var k in model){					
+	model2sync[k] = [];
+}
+
+renderDom(root);
+
+if(model.type === 'form'){
+	on(root,['keyup','click'],function(e){
+		var val = e.target.value;
+		var key = e.target.getAttribute('data-bind');
+		model[key] = val;
+	})
+}
+
+function modelBindView(){
+	var obj = {};
+	Object.defineProperty(obj,'name',{
+		set: function(value){
+			this._name = value;
+			root.childNodes[1].textContent = value;
+		},
+		get:function(){
+			return this._name;
+		}
+	})
+	return obj;
+}
+
+function renderDom(dom){
+	each(dom.childNodes,function(){
+		if(this.nodeType === 1){
+			renderDom(this);
+		}
+		render(this);
+	})
+}
+
+function render(obj){
+	if(obj.nodeType === 3){   
+		var cont = trim(obj.textContent);
+		var flg  = cont.slice(2,-2);
+		obj.textContent = model[flg];
+		if(flg != ""){
+			model2sync[flg].push({
+				node: obj,
+				raw : flg
+			})
+		}
+	}
+}
+
+function trim(str){												//去空格
+	return str.replace(/[(^\s+)(\s+$)]/g,"");
+}
+
+function on(el,events,handle){
+	if(Array.isArray(events)){
+		each(events,function(){
+			on(el,this,handle)
+		})
+	}
+	else el.addEventListener(events,handle,true);
+}
+
+function each(arr, func){
+	for (var i = 0; i < arr.length; i++) {
+		func.call(arr[i]);
+	}
+}
+
+</script>
+</html>
