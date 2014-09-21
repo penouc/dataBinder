@@ -14,7 +14,7 @@
 </body>
 <script type="text/javascript">
 
-var model = {
+var models = {
 	type : 'form',
 	name : "penglei",
 	age  : 23
@@ -29,17 +29,20 @@ var g = function(ele){
 }
 var root = g('#demo');
 var model2sync = {};			//save nodes
-for(var k in model){					
+var model = modelBindView();
+for(var k in models){					
 	model2sync[k] = [];
 }
 
 renderDom(root);
 
-if(model.type === 'form'){
+if(models.type === 'form'){
 	on(root,['keyup','click'],function(e){
 		var val = e.target.value;
 		var key = e.target.getAttribute('data-bind');
-		model[key] = val;
+		if(key){
+			model[key] = val;
+		}
 	})
 }
 
@@ -47,7 +50,8 @@ function modelBindView(){
 	var obj = {};
 	Object.defineProperty(obj,'name',{
 		set: function(value){
-			this._name = value;
+			models['name'] = value;
+			console.log(root.childNodes[1]);
 			root.childNodes[1].textContent = value;
 		},
 		get:function(){
@@ -70,7 +74,7 @@ function render(obj){
 	if(obj.nodeType === 3){   
 		var cont = trim(obj.textContent);
 		var flg  = cont.slice(2,-2);
-		obj.textContent = model[flg];
+		obj.textContent = models[flg];
 		if(flg != ""){
 			model2sync[flg].push({
 				node: obj,

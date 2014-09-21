@@ -70,7 +70,8 @@
 
 	  if (opt.type === 'form') {
 	    on(this.root, ['keyup', 'click'], function(e) {
-	      var name = e.target.name
+	      var name = e.target.name;
+	      console.log(e.target.value);
 	      if (name) {
 	        if (e.target.value != model[name]) {
 	          me.model[name] = e.target.value
